@@ -5,6 +5,7 @@ fn main() -> std::io::Result<()> {
     let mut file = File::open(".gitignore")?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    println!("{:?}", contents);
+    let lines: Vec<&str> = contents.split("\n").collect();
+    println!("{:?}", lines);
     Ok(())
 }

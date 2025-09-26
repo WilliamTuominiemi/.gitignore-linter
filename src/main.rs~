@@ -2,9 +2,10 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> std::io::Result<()> {
-    let mut file = File::open("test.txt")?;
+    let mut file = File::open(".gitignore")?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    println!("{:?}", contents);
+    let lines = contents.split("\n").collect();
+    println!("{:?}", lines);
     Ok(())
 }
