@@ -6,8 +6,7 @@ fn main() -> std::io::Result<()> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let lines: Vec<&str> = contents.split("\n").collect();
-    println!("{:?}", lines);
-    
+        
     let mut unique_lines = Vec::new();
 
     let mut row = 0;
@@ -33,6 +32,24 @@ fn main() -> std::io::Result<()> {
         } else if line.contains(']') && !line.contains('[') {
             println!("Match square bracket not opened on row {}", row);
             println!("--> |{}|", line);
+        }
+
+        if line.contains('\\') {
+            let pos = line.chars().position(|c| c == '\\').unwrap();
+            let escaped_char = line.chars().nth(pos + 1);
+            
+            match escaped_char {
+                Some(c) => {
+                    if !['#', '!', '[', ']', '*', '?', '\\'].contains(&c) {
+                        println!("\\ used for escaping non special character on row {}", row);
+                        println!("--> |{}|", line);
+                    }
+                }
+                None => {
+                    println!("Escaping emptyness on row {}", row);
+                    println!("--> |{}|", line);
+                }
+            }
         }
 
         row += 1;
