@@ -19,10 +19,20 @@ fn main() -> std::io::Result<()> {
         }
 
         if unique_lines.contains(&line) {
-            println!("Duplicate rule on row {}", row);
-            println!("--> |{}|", line);
+            if line != "" {
+                println!("Duplicate rule on row {}", row);
+                println!("--> |{}|", line);
+            }
         } else {
             unique_lines.push(line);
+        }
+
+        if line.contains('[') && !line.contains(']') {
+            println!("Match square bracket not closed on row {}", row);
+            println!("--> |{}|", line);
+        } else if line.contains(']') && !line.contains('[') {
+            println!("Match square bracket not opened on row {}", row);
+            println!("--> |{}|", line);
         }
 
         row += 1;
