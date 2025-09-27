@@ -13,25 +13,21 @@ fn main() -> std::io::Result<()> {
     while row < lines.len() {
         let line = lines[row];
         if line != line.trim() {
-            println!("Trailing whitespace on row {}", row);
-            println!("--> |{}|", line);
+            log_issue("Trailing whitespace", row, line);
         }
 
         if unique_lines.contains(&line) {
             if line != "" {
-                println!("Duplicate rule on row {}", row);
-                println!("--> |{}|", line);
+                log_issue("Duplicate rule", row, line);
             }
         } else {
             unique_lines.push(line);
         }
 
         if line.contains('[') && !line.contains(']') {
-            println!("Match square bracket not closed on row {}", row);
-            println!("--> |{}|", line);
+            log_issue("Match square bracket not closed", row, line);
         } else if line.contains(']') && !line.contains('[') {
-            println!("Match square bracket not opened on row {}", row);
-            println!("--> |{}|", line);
+            log_issue("Match square bracket not opened", row, line);
         }
 
         if line.contains('\\') {
@@ -41,13 +37,11 @@ fn main() -> std::io::Result<()> {
             match escaped_char {
                 Some(c) => {
                     if !['#', '!', '[', ']', '*', '?', '\\'].contains(&c) {
-                        println!("\\ used for escaping non special character on row {}", row);
-                        println!("--> |{}|", line);
+                        log_issue("\\ used for escaping non special character", row, line);
                     }
                 }
                 None => {
-                    println!("Escaping emptyness on row {}", row);
-                    println!("--> |{}|", line);
+                    log_issue("Escaping emptyness", row, line);
                 }
             }
         }
@@ -58,3 +52,7 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+fn log_issue(msg: &str, row: usize, line: &str) {
+    println!("{} on row {}", msg, row);
+    println!("--> |{}|", line);
+}
