@@ -6,5 +6,5 @@ edition = "2024"
 [dependencies]
 
 [[bin]]
-name = "gitil"
+name = "gitigli"
 path = "src/main.rs"
