@@ -5,8 +5,14 @@ fn main() -> std::io::Result<()> {
     let mut file = File::open(".gitignore")?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let lines: Vec<&str> = contents.split("\n").collect();
-        
+    let lines: Vec<&str> = contents.lines().collect();
+
+    lint(lines);
+
+    Ok(())
+}
+
+fn lint(lines: Vec<&str>) {
     let mut unique_lines = Vec::new();
 
     let mut row = 0;
@@ -33,7 +39,7 @@ fn main() -> std::io::Result<()> {
         if line.contains('\\') {
             let pos = line.chars().position(|c| c == '\\').unwrap();
             let escaped_char = line.chars().nth(pos + 1);
-            
+
             match escaped_char {
                 Some(c) => {
                     if !['#', '!', '[', ']', '*', '?', '\\'].contains(&c) {
@@ -41,18 +47,16 @@ fn main() -> std::io::Result<()> {
                     }
                 }
                 None => {
-                    log_issue("Escaping emptyness", row, line);
+                    log_issue("Escaping emptiness", row, line);
                 }
             }
         }
 
         row += 1;
     }
-
-    Ok(())
 }
 
 fn log_issue(msg: &str, row: usize, line: &str) {
     println!("{} on row {}", msg, row);
-    println!("--> |{}|", line);
+    println!("--> {}", line);
 }
