@@ -70,3 +70,70 @@ fn log_issue(msg: &str, row: usize, line: &str) {
     println!("{} on row {}", msg, row);
     println!("--> {}", line);
 }
+
+#[test]
+fn trailing_whitespace_rule() {
+    let line1 = "   test.txt   ";
+    let line2 = "test.txt   ";
+    let line3 = "   test.txt";
+    let line4 = "test.txt";
+    let line5 = "te  st.txt";
+
+    let lint_msg = "Trailing whitespace";
+
+    assert_eq!(lint(line1), Some(lint_msg));
+    assert_eq!(lint(line2), Some(lint_msg));
+    assert_eq!(lint(line3), Some(lint_msg));
+    assert_eq!(lint(line4), None);
+    assert_eq!(lint(line5), None);
+}
+
+#[test]
+fn match_square_bracket_not_closed() {
+    let line1 = "test.txt";
+    let line2 = "test[0-9].txt";
+    let line3 = "test[0-9.txt";
+
+    let lint_msg = "Match square bracket not closed";
+
+    assert_eq!(lint(line1), None);
+    assert_eq!(lint(line2), None);
+    assert_eq!(lint(line3), Some(lint_msg));
+}
+
+#[test]
+fn match_square_bracket_not_opened() {
+    let line1 = "test.txt";
+    let line2 = "test[0-9].txt";
+    let line3 = "test0-9].txt";
+
+    let lint_msg = "Match square bracket not opened";
+
+    assert_eq!(lint(line1), None);
+    assert_eq!(lint(line2), None);
+    assert_eq!(lint(line3), Some(lint_msg));
+}
+
+#[test]
+fn escape_non_special_characters() {
+    let line1 = "\\#";
+    let line2 = "\\a";
+    let line3 = "\\0";
+
+    let lint_msg = "\\ used for escaping non special character";
+
+    assert_eq!(lint(line1), None);
+    assert_eq!(lint(line2), Some(lint_msg));
+    assert_eq!(lint(line3), Some(lint_msg));
+}
+
+#[test]
+fn escaping_emptiness() {
+    let line1 = "test\\";
+    let line2 = "\\";
+
+    let lint_msg = "Escaping emptiness";
+
+    assert_eq!(lint(line1), Some(lint_msg));
+    assert_eq!(lint(line2), Some(lint_msg));
+}
