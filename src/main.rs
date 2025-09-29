@@ -7,19 +7,21 @@ fn main() -> std::io::Result<()> {
     file.read_to_string(&mut contents)?;
     let lines: Vec<&str> = contents.lines().collect();
 
-    lint(lines);
+    linter(lines);
 
     Ok(())
 }
 
-fn lint(lines: Vec<&str>) {
+fn linter(lines: Vec<&str>) {
     let mut unique_lines = Vec::new();
 
     let mut row = 0;
     while row < lines.len() {
         let line = lines[row];
-        if line != line.trim() {
-            log_issue("Trailing whitespace", row, line);
+
+        match lint(line) {
+            Some(msg) => log_issue(msg, row, line),
+            None => (),
         }
 
         if unique_lines.contains(&line) {
@@ -30,30 +32,38 @@ fn lint(lines: Vec<&str>) {
             unique_lines.push(line);
         }
 
-        if line.contains('[') && !line.contains(']') {
-            log_issue("Match square bracket not closed", row, line);
-        } else if line.contains(']') && !line.contains('[') {
-            log_issue("Match square bracket not opened", row, line);
-        }
-
-        if line.contains('\\') {
-            let pos = line.chars().position(|c| c == '\\').unwrap();
-            let escaped_char = line.chars().nth(pos + 1);
-
-            match escaped_char {
-                Some(c) => {
-                    if !['#', '!', '[', ']', '*', '?', '\\'].contains(&c) {
-                        log_issue("\\ used for escaping non special character", row, line);
-                    }
-                }
-                None => {
-                    log_issue("Escaping emptiness", row, line);
-                }
-            }
-        }
-
         row += 1;
     }
+}
+
+fn lint(line: &str) -> Option<&str> {
+    if line != line.trim() {
+        return Some("Trailing whitespace");
+    }
+
+    if line.contains('[') && !line.contains(']') {
+        return Some("Match square bracket not closed");
+    } else if line.contains(']') && !line.contains('[') {
+        return Some("Match square bracket not opened");
+    }
+
+    if line.contains('\\') {
+        let pos = line.chars().position(|c| c == '\\').unwrap();
+        let escaped_char = line.chars().nth(pos + 1);
+
+        match escaped_char {
+            Some(c) => {
+                if !['#', '!', '[', ']', '*', '?', '\\'].contains(&c) {
+                    return Some("\\ used for escaping non special character");
+                }
+            }
+            None => {
+                return Some("Escaping emptiness");
+            }
+        }
+    }
+
+    return None;
 }
 
 fn log_issue(msg: &str, row: usize, line: &str) {
